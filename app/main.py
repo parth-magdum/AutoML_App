@@ -37,9 +37,14 @@ async def automl(request: Request, file: UploadFile = File(...), target_column: 
     pred_path = f"app/model/predictions_{temp_id}.csv"
     preds.to_csv(pred_path, index=False)
 
+    # Prepare preview and full tables
+    table_preview = preds.head(5).to_html(classes='table table-striped', index=False)
+    table_full = preds.to_html(classes='table table-striped', index=False)
+
     return templates.TemplateResponse("index.html", {
         "request": request,
-        "table": preds.to_html(classes='table table-striped', index=False),
+        "table_preview": table_preview,
+        "table_full": table_full,
         "leaderboard": leaderboard.to_html(classes='table table-bordered', index=False),
         "download_link": f"/download/{temp_id}"
     })
@@ -47,5 +52,4 @@ async def automl(request: Request, file: UploadFile = File(...), target_column: 
 @app.get("/download/{file_id}")
 async def download_predictions(file_id: str):
     path = f"app/model/predictions_{file_id}.csv"
-    return FileResponse(path, filename="predictions.csv", media_type='text/csv')
     return FileResponse(path, filename="predictions.csv", media_type='text/csv')
